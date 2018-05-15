@@ -366,7 +366,7 @@ parse_config([], OK, NoOK, _Syntax, Opts) ->
     Mandatory = maps:get(mandatory, Opts, []),
     case check_mandatory(Mandatory, OK) of
         ok ->
-            case NoOK /= [] andalso maps:find(warning_unknown, Opts) of
+            case NoOK =/= [] andalso maps:find(warning_unknown, Opts) of
                 {ok, true} ->
                     lager:warning("Unknown keys in config: ~p", 
                                   [maps:from_list(NoOK)]);
@@ -446,13 +446,13 @@ find_config(Key, Val, Rest, OK, NoOK, Syntax, Opts) ->
             case do_parse_config(SubSyntax, Val) of
                 {ok, Val2} ->
                     NewOK = case lists:keytake(Index2, 1, OK) of
-                        false when UpdType==map -> 
+                        false when UpdType=:=map -> 
                             [{Index2, maps:put(Key2, Val2, #{})}|OK];
-                        false when UpdType==list -> 
+                        false when UpdType=:=list -> 
                             [{Index2, [{Key2, Val2}]}|OK];
-                        {value, {Index2, Base}, OKA} when UpdType==map ->
+                        {value, {Index2, Base}, OKA} when UpdType=:=map ->
                             [{Index2, maps:put(Key2, Val2, Base)}|OKA];
-                        {value, {Index2, Base}, OKA} when UpdType==list ->
+                        {value, {Index2, Base}, OKA} when UpdType=:=list ->
                             [{Index2, [{Key2, Val2}|Base]}|OKA]
                     end,
                     parse_config(Rest, NewOK, NoOK, Syntax, Opts);
@@ -517,10 +517,10 @@ do_parse_config(any, Val) ->
 do_parse_config(atom, Val) ->
     to_existing_atom(Val);
 
-do_parse_config(boolean, Val) when Val==0; Val=="0" ->
+do_parse_config(boolean, Val) when Val=:=0; Val=:="0" ->
     {ok, false};
 
-do_parse_config(boolean, Val) when Val==1; Val=="1" ->
+do_parse_config(boolean, Val) when Val=:=1; Val=:="1" ->
     {ok, true};
 
 do_parse_config(boolean, Val) ->
@@ -547,7 +547,7 @@ do_parse_config(list, Val) ->
         false -> error
     end;
 
-do_parse_config({List, Type}, Val) when List==list; List==slist; List==ulist ->
+do_parse_config({List, Type}, Val) when List=:=list; List=:=slist; List=:=ulist ->
     case Val of
         [] ->
             {ok, []};
@@ -589,8 +589,8 @@ do_parse_config({integer, Min, Max}, Val) ->
         error -> 
             error;
         Int when 
-            (Min==none orelse Int >= Min) andalso
-            (Max==none orelse Int =< Max) ->
+            (Min=:=none orelse Int >= Min) andalso
+            (Max=:=none orelse Int =< Max) ->
             {ok, Int};
         _ ->
             error
@@ -630,7 +630,7 @@ do_parse_config(binary, Val) ->
     if
         is_binary(Val) ->
             {ok, Val};
-        Val==[] ->
+        Val=:=[] ->
             {ok, <<>>};
         is_list(Val), is_integer(hd(Val)) ->
             case catch list_to_binary(Val) of

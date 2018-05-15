@@ -57,7 +57,7 @@ tokens(String, Acc) ->
         {error, _Type, _Line} -> 
             % lager:debug("Error parsing token ~s: ~p (~p)", [String, _Type, _Line]),
             error;
-        {Name, Opts, []} when Acc==[]-> 
+        {Name, Opts, []} when Acc=:=[]-> 
             [{Name, Opts}];
         {Name, Opts, []} -> 
             lists:reverse([{Name, Opts}|Acc]);
@@ -74,7 +74,7 @@ name([], Acc) ->
     end;
 
 
-name([Ch|_]=Rest, Acc) when Ch==$;; Ch==$, ->
+name([Ch|_]=Rest, Acc) when Ch=:=$;; Ch=:=$, ->
     case Acc of
         [] ->
             {error, name, ?LINE};
@@ -83,7 +83,7 @@ name([Ch|_]=Rest, Acc) when Ch==$;; Ch==$, ->
             opts(Rest, Name, [])
     end;
 
-name([Ch|Rest], Acc) when Ch==32; Ch==9; Ch==13 ->
+name([Ch|Rest], Acc) when Ch=:=32; Ch=:=9; Ch=:=13 ->
     case Acc of
         [] ->
             {error, name, ?LINE};
@@ -109,7 +109,7 @@ opts([Ch|Rest], Name, Opts) ->
                 [] -> {error, opts, ?LINE};
                 Rest1 -> {Name, Opts, Rest1}
             end;
-        _ when Ch==32; Ch==9; Ch==13 -> 
+        _ when Ch=:=32; Ch=:=9; Ch=:=13 -> 
             opts(strip(Rest), Name, Opts);
         _ -> 
             {error, opts, ?LINE}
@@ -127,7 +127,7 @@ opts_key([], Acc, Opts, Name) ->
             opts([], Name, Opts1)
     end;
 
-opts_key([Ch|_]=Rest, Acc, Opts, Name) when Ch==$;; Ch==$, ->
+opts_key([Ch|_]=Rest, Acc, Opts, Name) when Ch=:=$;; Ch=:=$, ->
     case Acc of
         [] ->
             {error, opts_key, ?LINE};
@@ -146,10 +146,10 @@ opts_key([$=|Rest], Acc, Opts, Name) ->
             opts_value(strip(Rest), Key, [], Opts, Name)
     end;
 
-opts_key([Ch|_]=Rest, Acc, Opts, Name) when Ch==32; Ch==9; Ch==13 ->
+opts_key([Ch|_]=Rest, Acc, Opts, Name) when Ch=:=32; Ch=:=9; Ch=:=13 ->
     case strip(Rest) of
         [] -> opts_key([], Acc, Opts, Name);
-        [Ch1|_]=Rest1 when Ch1==$;; Ch1==$,; Ch1==$= -> opts_key(Rest1, Acc, Opts, Name);
+        [Ch1|_]=Rest1 when Ch1=:=$;; Ch1=:=$,; Ch1=:=$= -> opts_key(Rest1, Acc, Opts, Name);
         _ -> {error, opts_key, ?LINE}
     end;
 
@@ -168,7 +168,7 @@ opts_value([], Key, Acc, Opts, Name) ->
             opts([], Name, Opts1)
     end;
 
-opts_value([Ch|_]=Rest, Key, Acc, Opts, Name) when Ch==$;; Ch==$, ->
+opts_value([Ch|_]=Rest, Key, Acc, Opts, Name) when Ch=:=$;; Ch=:=$, ->
     case Acc of
         [] ->
             {error, opts_value, ?LINE};
@@ -178,10 +178,10 @@ opts_value([Ch|_]=Rest, Key, Acc, Opts, Name) when Ch==$;; Ch==$, ->
             opts(Rest, Name, Opts1)
     end;
 
-opts_value([Ch|_]=Rest, Key, Acc, Opts, Name) when Ch==32; Ch==9; Ch==13 ->
+opts_value([Ch|_]=Rest, Key, Acc, Opts, Name) when Ch=:=32; Ch=:=9; Ch=:=13 ->
     case strip(Rest) of
         [] -> opts_value([], Key, Acc, Opts, Name);
-        [Ch1|_]=Rest1 when Ch1==$;; Ch1==$, -> opts_value(Rest1, Key, Acc, Opts, Name);
+        [Ch1|_]=Rest1 when Ch1=:=$;; Ch1=:=$, -> opts_value(Rest1, Key, Acc, Opts, Name);
         _ -> {error, opts_value, ?LINE}
     end;
 

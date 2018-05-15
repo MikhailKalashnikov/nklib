@@ -188,7 +188,7 @@ uuid_4122() ->
 lhash(Base) ->
     <<I:160/integer>> = sha(term_to_binary(Base)),
     case encode_integer(I) of
-        Hash when byte_size(Hash) == 27 -> Hash;
+        Hash when byte_size(Hash) =:= 27 -> Hash;
         Hash -> <<(binary:copy(<<"a">>, 27-byte_size(Hash)))/binary, Hash/binary>>
     end.
 
@@ -214,7 +214,7 @@ uid() ->
 
 hash(Base) ->
     case encode_integer(erlang:phash2([Base], 4294967296)) of
-        Hash when byte_size(Hash)==6 -> Hash;
+        Hash when byte_size(Hash)=:=6 -> Hash;
         Hash -> <<(binary:copy(<<"a">>, 6-byte_size(Hash)))/binary, Hash/binary>>
     end.
 
@@ -225,7 +225,7 @@ hash(Base) ->
 
 hash36(Base) ->
     case encode_integer_36(erlang:phash2([Base], 4294967296)) of
-        Hash when byte_size(Hash)==7 -> Hash;
+        Hash when byte_size(Hash)=:=7 -> Hash;
         Hash -> <<(binary:copy(<<"A">>, 7-byte_size(Hash)))/binary, Hash/binary>>
     end.
 
@@ -253,7 +253,7 @@ get_hwaddr() ->
 %% @private
 get_hwaddrs([{_Name, Data}|Rest]) ->
     case nklib_util:get_value(hwaddr, Data) of
-        Hw when is_list(Hw), length(Hw)==6 -> {ok, hex(Hw)};
+        Hw when is_list(Hw), length(Hw)=:=6 -> {ok, hex(Hw)};
         _ -> get_hwaddrs(Rest)
     end;
 
@@ -747,7 +747,7 @@ integer_to_list(I0, Base, R0) ->
         true -> [D+$0|R0]
     end,
     if
-        I1 == 0 -> R1;
+        I1 =:= 0 -> R1;
        true -> integer_to_list(I1, Base, R1)
     end.
 
@@ -763,10 +763,10 @@ extract(PropList, KeyOrKeys) ->
             is_tuple(Term), is_list(KeyOrKeys) ->
                 lists:member(element(1, Term), KeyOrKeys);
             is_tuple(Term) ->
-                element(1, Term) == KeyOrKeys;
+                element(1, Term) =:= KeyOrKeys;
             is_list(KeyOrKeys) ->
                 lists:member(Term, KeyOrKeys);
-            Term == KeyOrKeys ->
+            Term =:= KeyOrKeys ->
                 true;
             true ->
                 false
@@ -786,10 +786,10 @@ delete(PropList, KeyOrKeys) ->
             is_tuple(Term), is_list(KeyOrKeys) ->
                 not lists:member(element(1, Term), KeyOrKeys);
             is_tuple(Term) ->
-                element(1, Term) /= KeyOrKeys;
+                element(1, Term) =/= KeyOrKeys;
             is_list(KeyOrKeys) ->
                 not lists:member(Term, KeyOrKeys);
-            Term /= KeyOrKeys ->
+            Term =/= KeyOrKeys ->
                 true;
             true ->
                 false
@@ -863,7 +863,7 @@ words([], [], Tokens) ->
     lists:reverse(Tokens);
 words([], Chs, Tokens) ->
     lists:reverse([lists:reverse(Chs)|Tokens]);
-words([Ch|Rest], Chs, Tokens) when Ch==32; Ch==9; Ch==13; Ch==10 ->
+words([Ch|Rest], Chs, Tokens) when Ch=:=32; Ch=:=9; Ch=:=13; Ch=:=10 ->
     case Chs of
         [] -> words(Rest, [], Tokens);
         _ -> words(Rest, [], [lists:reverse(Chs)|Tokens])
@@ -914,19 +914,19 @@ randomize([]) ->
 randomize([A]) ->
     [A];
 randomize([A, B]) ->
-    case crypto:rand_uniform(0, 2) of
-        0 -> [A, B];
-        1 -> [B, A]
+    case rand:uniform(2) of
+        1 -> [A, B];
+        2 -> [B, A]
     end;
 randomize([A, B, C]) ->
-    case crypto:rand_uniform(0, 3) of
-        0 -> [A, B, C];
-        1 -> [B, C, A];
-        2 -> [C, A, B]
+    case rand:uniform(3) of
+        1 -> [A, B, C];
+        2 -> [B, C, A];
+        3 -> [C, A, B]
     end;
 randomize(List) when is_list(List) ->
     Size = length(List),
-    List1 = [{crypto:rand_uniform(0, Size), Term} || Term <- List],
+    List1 = [{rand:uniform(Size) - 1, Term} || Term <- List],
     [Term || {_, Term} <- lists:sort(List1)].
 
 

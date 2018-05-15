@@ -57,7 +57,7 @@ uris(_) ->
 uris(String, Acc) ->
     String1 = strip(String),
     case disp(String1, [], false, #uri{}, String1) of
-        {#uri{}=Uri, []} when Acc==[]-> [Uri];
+        {#uri{}=Uri, []} when Acc=:=[]-> [Uri];
         {#uri{}=Uri, []} -> lists:reverse([Uri|Acc]);
         {#uri{}=Uri, Rest} -> uris(Rest, [Uri|Acc]);
         {error, _Type, _Line} -> 
@@ -75,7 +75,7 @@ disp([$*|Rest], [], false, Uri, Full) ->
     Uri1 = Uri#uri{domain = <<"*">>},
     case strip(Rest) of
         [] -> {Uri1, []};
-        [Ch1|_]=Rest1 when Ch1==$,; Ch1==$; -> opts(Rest1, false, Uri1);
+        [Ch1|_]=Rest1 when Ch1=:=$,; Ch1=:=$; -> opts(Rest1, false, Uri1);
          _ -> disp(Rest, [$*], false, Uri, Full)
     end;
 
@@ -121,7 +121,7 @@ scheme([$:|Rest], Acc, Block, Uri) ->
             end
     end;
 
-scheme([Ch|Rest], Acc, Block, Uri) when Ch==32; Ch==9; Ch==13 ->
+scheme([Ch|Rest], Acc, Block, Uri) when Ch=:=32; Ch=:=9; Ch=:=13 ->
     case strip(Rest) of
         [$:|_]=Rest1 -> scheme(Rest1, Acc, Block, Uri);
         _ -> {error, scheme, ?LINE}
@@ -139,7 +139,7 @@ user([], _Acc, _Block, _Uri) ->
     {error, user, ?LINE};
 
 user([$:|Rest], Acc, Block, Uri) ->
-    case Acc==[] of
+    case Acc=:=[] of
         true ->
             {error, user, ?LINE};
         false -> 
@@ -148,7 +148,7 @@ user([$:|Rest], Acc, Block, Uri) ->
     end;
 
 user([$@|Rest], Acc, Block, Uri) ->
-    case Acc==[] of
+    case Acc=:=[] of
         true ->
             {error, user, ?LINE};
         false ->
@@ -159,10 +159,10 @@ user([$@|Rest], Acc, Block, Uri) ->
 user([$>|_], _Acc, true, _Uri) ->
     {error, user, ?LINE};
 
-user([Ch|_]=Rest, Acc, Block, Uri) when Ch==32; Ch==9; Ch==13 ->
+user([Ch|_]=Rest, Acc, Block, Uri) when Ch=:=32; Ch=:=9; Ch=:=13 ->
     case strip(Rest) of
         [] -> user([], Acc, Block, Uri);
-        [Ch1|_]=Rest1 when Ch1==$:; Ch1==$@ -> user(Rest1, Acc, Block, Uri);
+        [Ch1|_]=Rest1 when Ch1=:=$:; Ch1=:=$@ -> user(Rest1, Acc, Block, Uri);
         _ -> {error, user, ?LINE}
     end;
 
@@ -175,7 +175,7 @@ pass([], _Acc, _Block, _Uri) ->
     {error, pass, ?LINE};
 
 pass([$@|Rest], Acc, Block, Uri) ->
-    case Acc==[] of
+    case Acc=:=[] of
         true ->
             {error, pass, ?LINE};
         false ->
@@ -183,7 +183,7 @@ pass([$@|Rest], Acc, Block, Uri) ->
             domain(strip(Rest), [], false, Block, Uri1)
     end;
 
-pass([Ch|_]=Rest, Acc, Block, Uri) when Ch==32; Ch==9; Ch==13 ->
+pass([Ch|_]=Rest, Acc, Block, Uri) when Ch=:=32; Ch=:=9; Ch=:=13 ->
     case strip(Rest) of
         [] -> pass([], Acc, Block, Uri);
         [$@|_]=Rest1 -> pass(Rest1, Acc, Block, Uri);
@@ -197,7 +197,7 @@ pass([Ch|Rest], Acc, Block, Uri) ->
 
 %% @private URI Domain
 domain([], Acc, Ip6, Block, Uri) ->
-    case Acc==[] orelse Ip6 orelse Block of
+    case Acc=:=[] orelse Ip6 orelse Block of
         true ->
             {error, domain, ?LINE};
         false -> 
@@ -208,8 +208,8 @@ domain([], Acc, Ip6, Block, Uri) ->
 domain([$/|Rest], [], Ip6, Block, Uri) ->
     domain(Rest, [], Ip6, Block, Uri);
 
-domain([Ch|_]=Rest, Acc, Ip6, Block, Uri) when Ch==$;; Ch==$?; Ch==$>; Ch==$,; Ch==$/ ->
-    case Acc==[] orelse Ip6 of
+domain([Ch|_]=Rest, Acc, Ip6, Block, Uri) when Ch=:=$;; Ch=:=$?; Ch=:=$>; Ch=:=$,; Ch=:=$/ ->
+    case Acc=:=[] orelse Ip6 of
         true ->
             {error, domain, ?LINE};
         false ->
@@ -221,19 +221,19 @@ domain([Ch|_]=Rest, Acc, Ip6, Block, Uri) when Ch==$;; Ch==$?; Ch==$>; Ch==$,; C
     end;
 
 domain([$[|Rest], Acc, Ip6, Block, Uri) ->
-    case Acc==[] andalso not Ip6 of
+    case Acc=:=[] andalso not Ip6 of
         true -> domain(Rest, [$[|Acc], true, Block, Uri);
         false -> {error, domain, ?LINE}
     end;
 
 domain([$]|Rest], Acc, Ip6, Block, Uri) ->
-    case Acc/=[] andalso Ip6 of
+    case Acc=/=[] andalso Ip6 of
         true -> domain(Rest, [$]|Acc], false, Block, Uri);
         false -> {error, domain, ?LINE}
     end;
 
 domain([$:|Rest], Acc, false, Block, Uri) ->
-    case Acc==[] of
+    case Acc=:=[] of
         true ->
             {error, domain, ?LINE};
         false -> 
@@ -244,12 +244,12 @@ domain([$:|Rest], Acc, false, Block, Uri) ->
 domain([$@|_], _Acc, _Ip6, _Block, _Uri) ->
     {error, domain, ?LINE};
 
-domain([Ch|_]=Rest, Acc, Ip6, Block, Uri) when Ch==32; Ch==9; Ch==13 ->
+domain([Ch|_]=Rest, Acc, Ip6, Block, Uri) when Ch=:=32; Ch=:=9; Ch=:=13 ->
     case strip(Rest) of
         [] ->
             domain([], Acc, Ip6, Block, Uri);
-        [Ch1|_]=Rest1 when Ch1==$:; Ch1==$@; Ch1==$;; Ch1==$?; Ch1==$>; Ch1==$,;
-                           Ch1==$[; Ch1==$] ->
+        [Ch1|_]=Rest1 when Ch1=:=$:; Ch1=:=$@; Ch1=:=$;; Ch1=:=$?; Ch1=:=$>; Ch1=:=$,;
+                           Ch1=:=$[; Ch1=:=$] ->
             domain(Rest1, Acc, Ip6, Block, Uri);
         _ -> 
             {error, domain, ?LINE}
@@ -261,7 +261,7 @@ domain([Ch|Rest], Acc, Ip6, Block, Uri) ->
 
 %% @private URI Port
 port([], Acc, Block, Uri) ->
-    case Acc==[] orelse Block of
+    case Acc=:=[] orelse Block of
         true ->
             {error, port, ?LINE};
         false ->
@@ -276,7 +276,7 @@ port([], Acc, Block, Uri) ->
 port([$@|_], _Acc, _Block, _Uri) ->
     {error, port, ?LINE};
 
-port([Ch|_]=Rest, Acc, Block, Uri) when Ch==$;; Ch==$?; Ch==$>; Ch==$,; Ch==$/ ->
+port([Ch|_]=Rest, Acc, Block, Uri) when Ch=:=$;; Ch=:=$?; Ch=:=$>; Ch=:=$,; Ch=:=$/ ->
     case Acc of
         [] -> 
             {error, port, ?LINE};
@@ -293,11 +293,11 @@ port([Ch|_]=Rest, Acc, Block, Uri) when Ch==$;; Ch==$?; Ch==$>; Ch==$,; Ch==$/ -
             end
     end;
 
-port([Ch|_]=Rest, Acc, Block, Uri) when Ch==32; Ch==9; Ch==13 ->
+port([Ch|_]=Rest, Acc, Block, Uri) when Ch=:=32; Ch=:=9; Ch=:=13 ->
     case strip(Rest) of
         [] ->
             port([], Acc, Block, Uri);
-        [Ch1|_]=Rest1 when Ch1==$@; Ch1==$;; Ch1==$?; Ch1==$>; Ch1==$, ->
+        [Ch1|_]=Rest1 when Ch1=:=$@; Ch1=:=$;; Ch1=:=$?; Ch1=:=$>; Ch1=:=$, ->
             port(Rest1, Acc, Block, Uri);
         _ -> 
             {error, port, ?LINE}
@@ -331,7 +331,7 @@ opts([Ch|Rest], Block, Uri) ->
                 [] -> {error, opts, ?LINE};
                 Rest1 -> {Uri, Rest1}
             end;
-        _ when Ch==32; Ch==9; Ch==13 -> 
+        _ when Ch=:=32; Ch=:=9; Ch=:=13 -> 
             opts(strip(Rest), Block, Uri);
         _ -> 
             {error, opts, ?LINE}
@@ -352,7 +352,7 @@ opts_key([], Acc, Block, Uri) ->
             opts([], Block, Uri1)
     end;
 
-opts_key([Ch|_]=Rest, Acc, Block, Uri) when Ch==$;; Ch==$?; Ch==$>; Ch==$, ->
+opts_key([Ch|_]=Rest, Acc, Block, Uri) when Ch=:=$;; Ch=:=$?; Ch=:=$>; Ch=:=$, ->
     case Acc of
         [] ->
             {error, opts_key, ?LINE};
@@ -373,11 +373,11 @@ opts_key([$=|Rest], Acc, Block, Uri) ->
             opts_value(strip(Rest), lists:reverse(Acc), [], false, Block, Uri)
     end;
 
-opts_key([Ch|_]=Rest, Acc, Block, Uri) when Ch==32; Ch==9; Ch==13 ->
+opts_key([Ch|_]=Rest, Acc, Block, Uri) when Ch=:=32; Ch=:=9; Ch=:=13 ->
     case strip(Rest) of
         [] ->
             opts_key([], Acc, Block, Uri);
-        [Ch1|_]=Rest1 when Ch1==$;; Ch1==$?; Ch1==$>; Ch1==$,; Ch1==$= ->
+        [Ch1|_]=Rest1 when Ch1=:=$;; Ch1=:=$?; Ch1=:=$>; Ch1=:=$,; Ch1=:=$= ->
             opts_key(Rest1, Acc, Block, Uri);
         _ ->
             {error, opts_key, ?LINE}
@@ -389,7 +389,7 @@ opts_key([Ch|Rest], Acc, Block, Uri) ->
 
 %% @private URI Opts Values
 opts_value([], Key, Acc, Quoted, Block, Uri) ->
-    case Acc==[] orelse Quoted of
+    case Acc=:=[] orelse Quoted of
         true ->
             {error, opts_value, ?LINE};
         false ->
@@ -408,7 +408,7 @@ opts_value([$"|Rest], Key, Acc, Quoted, Block, Uri) ->
     opts_value(Rest, Key, [$"|Acc], not Quoted, Block, Uri);
 
 opts_value([Ch|_]=Rest, Key, Acc, false, Block, Uri) 
-            when Ch==$;; Ch==$?; Ch==$>; Ch==$, ->
+            when Ch=:=$;; Ch=:=$?; Ch=:=$>; Ch=:=$, ->
     case Acc of
         [] ->
             {error, opts_value, ?LINE};
@@ -421,11 +421,11 @@ opts_value([Ch|_]=Rest, Key, Acc, false, Block, Uri)
             opts(Rest, Block, Uri1)
     end;
 
-opts_value([Ch|_]=Rest, Key, Acc, false, Block, Uri) when Ch==32; Ch==9; Ch==13 ->
+opts_value([Ch|_]=Rest, Key, Acc, false, Block, Uri) when Ch=:=32; Ch=:=9; Ch=:=13 ->
     case strip(Rest) of
         [] ->
             opts_value([], Key, Acc, false, Block, Uri);
-        [Ch1|_]=Rest1 when Ch1==$;; Ch1==$?; Ch1==$>; Ch1==$, ->
+        [Ch1|_]=Rest1 when Ch1=:=$;; Ch1=:=$?; Ch1=:=$>; Ch1=:=$, ->
             opts_value(Rest1, Key, Acc, false, Block, Uri);
         _ ->
             {error, opts_value, ?LINE}
@@ -449,7 +449,7 @@ headers_key([], Acc, Block, Uri) ->
             opts([], Block, Uri1)
     end;
 
-headers_key([Ch|_]=Rest, Acc, Block, Uri) when Ch==$&; Ch==$>; Ch==$, ->
+headers_key([Ch|_]=Rest, Acc, Block, Uri) when Ch=:=$&; Ch=:=$>; Ch=:=$, ->
     case Acc of
         [] ->
             {error, headers_key, ?LINE};
@@ -470,11 +470,11 @@ headers_key([$=|Rest], Acc, Block, Uri) ->
             headers_value(strip(Rest), lists:reverse(Acc), [], false, Block, Uri)
     end;
 
-headers_key([Ch|_]=Rest, Acc, Block, Uri) when Ch==32; Ch==9; Ch==13 ->
+headers_key([Ch|_]=Rest, Acc, Block, Uri) when Ch=:=32; Ch=:=9; Ch=:=13 ->
     case strip(Rest) of
         [] ->
             headers_key([], Acc, Block, Uri);
-        [Ch1|_]=Rest1 when Ch1==$&; Ch1==$>; Ch1==$,; Ch1==$= ->
+        [Ch1|_]=Rest1 when Ch1=:=$&; Ch1=:=$>; Ch1=:=$,; Ch1=:=$= ->
             headers_key(Rest1, Acc, Block, Uri);
         _ ->
             {error, headers_key, ?LINE}
@@ -489,7 +489,7 @@ headers_key([Ch|Rest], Acc, Block, Uri) ->
 
 %% @private URI Opts Values
 headers_value([], Key, Acc, Quoted, Block, Uri) ->
-    case Acc==[] orelse Quoted of
+    case Acc=:=[] orelse Quoted of
         true ->
             {error, headers_value, ?LINE};
         false ->
@@ -507,7 +507,7 @@ headers_value([92, $"|Rest], Key, Acc, true, Block, Uri) ->
 headers_value([$"|Rest], Key, Acc, Quoted, Block, Uri) ->
     headers_value(Rest, Key, [$"|Acc], not Quoted, Block, Uri);
 
-headers_value([Ch|_]=Rest, Key, Acc, false, Block, Uri) when Ch==$&; Ch==$>; Ch==$, ->
+headers_value([Ch|_]=Rest, Key, Acc, false, Block, Uri) when Ch=:=$&; Ch=:=$>; Ch=:=$, ->
     case Acc of
         [] ->
             {error, headers_value, ?LINE};
@@ -520,11 +520,11 @@ headers_value([Ch|_]=Rest, Key, Acc, false, Block, Uri) when Ch==$&; Ch==$>; Ch=
             opts(Rest, Block, Uri1)
     end;
 
-headers_value([Ch|_]=Rest, Key, Acc, false, Block, Uri) when Ch==32; Ch==9; Ch==13 ->
+headers_value([Ch|_]=Rest, Key, Acc, false, Block, Uri) when Ch=:=32; Ch=:=9; Ch=:=13 ->
     case strip(Rest) of
         [] ->
             headers_value([], Key, Acc, false, Block, Uri);
-        [Ch1|_]=Rest1 when Ch1==$&; Ch1==$>; Ch1==$, ->
+        [Ch1|_]=Rest1 when Ch1=:=$&; Ch1=:=$>; Ch1=:=$, ->
             headers_value(Rest1, Key, Acc, false, Block, Uri);
         _ ->
             {error, headers_key, ?LINE}
@@ -551,7 +551,7 @@ path([], Block, Uri, Acc) ->
             {error, path, ?LINE}
     end;
 
-path([Ch|_]=Rest, Block, Uri, Acc) when Ch==$;; Ch==$?; Ch==$>; Ch==$, ->
+path([Ch|_]=Rest, Block, Uri, Acc) when Ch=:=$;; Ch=:=$?; Ch=:=$>; Ch=:=$, ->
     Acc1 = case Acc of
         [$/] -> [$/];
         [$/|RestPath] -> RestPath;
